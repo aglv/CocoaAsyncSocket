@@ -8,6 +8,8 @@
 //  https://github.com/robbiehanson/CocoaAsyncSocket
 //
 
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
 #import "GCDAsyncSocket.h"
 
 #if TARGET_OS_IPHONE
