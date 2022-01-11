@@ -8,6 +8,8 @@
 #import <Availability.h>
 #if TARGET_OS_IPHONE
     #import <UIKit/UIDevice.h>
+#elif TARGET_OS_MAC
+    #import <AppKit/AppKit.h>
 #endif
 
 /**
@@ -1127,33 +1129,34 @@ static char *dd_str_copy(const char *str)
     return result;
 }
 
+
 - (void)setLogFormatter:(id <DDLogFormatter>)logFormatter
 {
     // The design of this method is documented extensively in the logFormatter message (above in code).
     
     NSAssert(![self isOnGlobalLoggingQueue], @"Core architecture requirement failure");
     NSAssert(![self isOnInternalLoggerQueue], @"MUST access ivar directly, NOT via self.* syntax.");
-    
+
+
     dispatch_block_t block = ^{ @autoreleasepool {
-        
-        if (formatter != logFormatter)
+        if (self->formatter != logFormatter)
         {
-            if ([formatter respondsToSelector:@selector(willRemoveFromLogger:)]) {
-                [formatter willRemoveFromLogger:self];
+            if ([self->formatter respondsToSelector:@selector(willRemoveFromLogger:)]) {
+                [self->formatter willRemoveFromLogger:self];
             }
             
-            formatter = logFormatter;
+            self->formatter = logFormatter;
             
-            if ([formatter respondsToSelector:@selector(didAddToLogger:)]) {
-                [formatter didAddToLogger:self];
+            if ([self->formatter respondsToSelector:@selector(didAddToLogger:)]) {
+                [self->formatter didAddToLogger:self];
             }
         }
-    }};
+}};
     
     dispatch_queue_t globalLoggingQueue = [DDLog loggingQueue];
     
     dispatch_async(globalLoggingQueue, ^{
-        dispatch_async(loggerQueue, block);
+        dispatch_async(self->loggerQueue, block);
     });
 }
 
